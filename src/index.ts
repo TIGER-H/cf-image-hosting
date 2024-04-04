@@ -25,25 +25,26 @@ app.post("/upload", async (c) => {
   const resClone = res.clone();
 
   const data = (await resClone.json()) satisfies Array<{ src: string }>;
-  const tgphPath = data[0].src.split("/").pop();
-  if (!tgphPath) throw new Error("tgphPath not found");
+  const tgphUploadPath = data[0].src.split("/").pop();
+  if (!tgphUploadPath) throw new Error("upload path not found");
 
-  // // upload to KV
-  // // key: filename, value: tgphName
-  // // @ts-ignore
-  await c.env.universe.put(file.name.split(".")[0], tgphPath);
-
+  // upload to KV
+  // tgphKVKey: filename, tgphKVValue: tgphUploadPath
+  const tgphKVKey = file.name.split(".")[0];
+  const tgphKVValue = await c.env.universe.get(tgphKVKey);
+  if (!tgphKVValue) {
+    await c.env.universe.put(tgphKVKey, tgphUploadPath);
+  }
   return res;
 });
 
-app.get("/file/:tgphPath", (c) => {
-  return fetch(`${c.env.API_HOST}/file/${c.req.param("tgphPath")}`);
+app.get("/file/:tgphUploadPath", (c) => {
+  return fetch(`${c.env.API_HOST}/file/${c.req.param("tgphUploadPath")}`);
 });
 
-app.get("/kv/:name", async (c) => {
-  // @ts-ignore
-  const tgphName = await c.env.universe.get(c.req.param("name"));
-  return fetch(`${c.env.API_HOST}/file/${tgphName}`);
+app.get("/kv/:key", async (c) => {
+  const kvValue = await c.env.universe.get(c.req.param("key"));
+  return fetch(`${c.env.API_HOST}/file/${kvValue}`);
 });
 
 export default app;
