@@ -1,12 +1,15 @@
 name = "cf-image-hosting"
 compatibility_date = "2023-12-01"
 main = "src/index.ts"
+kv_namespaces = [
+    { binding = "universe", id = "ab2b2e5eeb774eb9b1bd66de97ed353b" }
+]
 
 [vars]
 API_HOST = "https://telegra.ph"
 
 [env.dev.vars]
-API_HOST = "https://images.mingming.dev"
+API_HOST = "http://localhost:3332"
 
 [site]
 bucket = "./public"
